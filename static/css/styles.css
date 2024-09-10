@@ -1,0 +1,13 @@
+/* Example of overriding Bootstrap styles */
+.navbar {
+    background-color: #007bff;
+}
+
+.navbar-brand {
+    color: #fff !important;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: gray; /* Optional: Change text color for completed tasks */
+}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Simple To-Do List{% endblock %}
+
+{% block content %}
+    <h2 class="mt-4 mb-4">To-Do List</h2>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Complete</th>
+                <th>
+                    <a href="?sort_by=category__name&order={% if current_sort_by == 'category__name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Category {% if current_sort_by == 'category__name' %}{% if current_order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="?sort_by=title&order={% if current_sort_by == 'title' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Title {% if current_sort_by == 'title' %}{% if current_order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="?sort_by=description&order={% if current_sort_by == 'description' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Description {% if current_sort_by == 'description' %}{% if current_order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                    </a>
+                </th>
+                <th>
+                    <a href="?sort_by=due_date&order={% if current_sort_by == 'due_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Due Date {% if current_sort_by == 'due_date' %}{% if current_order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                    </a>
+                </th>
+                <th>Actions</th>
+                <th>
+                    <a href="?sort_by=status__name&order={% if current_sort_by == 'status__name' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                        Status {% if current_sort_by == 'status__name' %}{% if current_order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                    </a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for todo in todo_items %}
+                <tr class="{% if todo.status and todo.status.name == 'Completed' %}completed{% endif %}">
+                    <td>
+                        <input type="checkbox" class="task-checkbox" data-id="{{ todo.id }}" {% if todo.status and todo.status.name == 'Completed' %}checked{% endif %}>
+                    </td>
+                    <td>
+                        {% if todo.category %}
+                            {{ todo.category.name }}
+                        {% else %}
+                            No Category
+                        {% endif %}
+                    </td>
+                    <td>{{ todo.title }}</td>
+                    <td>{{ todo.description }}</td>
+                    <td>{{ todo.due_date }}</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="{% url 'todo:edit_todo' todo.id %}">Edit</a>
+                    </td>
+                    <td>
+                        {% if todo.status %}
+                            {{ todo.status.name }}
+                        {% else %}
+                            Not Set
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a class="btn btn-success mt-4" href="{% url 'todo:add_todo' %}">Add New Todo</a>
+{% endblock %}
