@@ -1,2 +1,35 @@
+# Python files
+*.py[cod]
+__pycache__/
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
 venv/
 .venv/
+
+# Django files
+*.log
+*.pot
+db.sqlite3
+/media/
+staticfiles/
+.env
+
+# Docker files
+.dockerignore
+docker-compose.override.yml
+
+# Environment variable files
+.env
+.env.*
+
+# IDE-specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# MacOS-specific
+.DS_Store
