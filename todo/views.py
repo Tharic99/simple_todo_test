@@ -4,9 +4,9 @@ from django.contrib.auth import login
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-import json  # Import json module here
-from .models import TodoItem, Status
-from .forms import TodoItemForm, UserRegisterForm
+import json
+from .models import TodoItem, Status, Category
+from .forms import TodoItemForm, UserRegisterForm, CategoryForm, StatusForm
 
 @login_required
 def todo_list(request):
@@ -70,7 +70,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('todo_list')
+            return redirect('todo:todo_list')
     else:
         form = UserRegisterForm()
     return render(request, 'todo/register.html', {'form': form})
@@ -86,6 +86,12 @@ def add_todo(request):
             return redirect('todo:todo_list')
     else:
         form = TodoItemForm()
+        # Check for a default category and set it as initial value
+        try:
+            default_category = Category.objects.get(is_default=True)
+            form.fields['category'].initial = default_category
+        except Category.DoesNotExist:
+            pass
 
     return render(request, 'todo/add_todo.html', {'form': form})
 
@@ -114,3 +120,47 @@ def update_task_status(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+@login_required
+def add_or_edit_category(request, pk=None):
+    """Handle adding or editing categories, enforcing a single default."""
+    if pk:
+        category = get_object_or_404(Category, pk=pk)
+    else:
+        category = None
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            # Check if this category is being set as default
+            if form.cleaned_data.get('is_default'):
+                # Unset the current default category
+                Category.objects.filter(is_default=True).update(is_default=False)
+            form.save()
+            return redirect('todo:category_list')
+    else:
+        form = CategoryForm(instance=category)
+
+    return render(request, 'todo/category_form.html', {'form': form})
+
+@login_required
+def add_or_edit_status(request, pk=None):
+    """Handle adding or editing statuses, enforcing a single default."""
+    if pk:
+        status = get_object_or_404(Status, pk=pk)
+    else:
+        status = None
+
+    if request.method == 'POST':
+        form = StatusForm(request.POST, instance=status)
+        if form.is_valid():
+            # Check if this status is being set as default
+            if form.cleaned_data.get('is_default'):
+                # Unset the current default status
+                Status.objects.filter(is_default=True).update(is_default=False)
+            form.save()
+            return redirect('todo:status_list')
+    else:
+        form = StatusForm(instance=status)
+
+    return render(request, 'todo/status_form.html', {'form': form})

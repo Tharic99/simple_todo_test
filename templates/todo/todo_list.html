@@ -3,6 +3,20 @@
 {% block title %}Simple To-Do List{% endblock %}
 
 {% block content %}
+<!-- Example addition to a navigation bar or sidebar -->
+<a href="{% url 'todo:add_category' %}" class="btn btn-primary">Add New Category</a>
+
+<!-- Optionally, add links next to each category to edit them -->
+{% for category in categories %}
+    <tr>
+        <td>{{ category.name }}</td>
+        <td>
+            <a href="{% url 'todo:edit_category' category.id %}" class="btn btn-sm btn-warning">Edit</a>
+        </td>
+    </tr>
+{% endfor %}
+
+
     <h2 class="mt-4 mb-4">To-Do List</h2>
     <table class="table table-striped">
         <thead class="thead-dark">
