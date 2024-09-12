@@ -29,11 +29,17 @@
                     <a class="nav-link" href="{% url 'todo:add_todo' %}">Add Todo</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+                    <a class="nav-link" href="{% url 'settings:settings_home' %}">Settings</a>
                 </li>
+            </ul>
+            <!-- Right-aligned section -->
+            <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold text-danger" href="{% url 'admin:index' %}">Admin</a>
                     </li>
                 {% else %}
                     <li class="nav-item">

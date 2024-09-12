@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Statuses{% endblock %}
+
+{% block content %}
+<h1>Manage Statuses</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form>
+
+<h2>Existing Statuses</h2>
+<ul>
+    {% for status in statuses %}
+    <li>{{ status.name }}{% if status.is_default %} (Default){% endif %}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
