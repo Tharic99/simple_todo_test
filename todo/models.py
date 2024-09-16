@@ -15,6 +15,11 @@ class Status(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['-name']
+        verbose_name = "Status"
+        verbose_name_plural = "Statuses"          
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     is_default = models.BooleanField(default=False)
@@ -27,6 +32,11 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['-name']
+        verbose_name = "Category"
+        verbose_name_plural = "Catagories"        
 
 class TodoItem(models.Model):
     title = models.CharField(max_length=100)

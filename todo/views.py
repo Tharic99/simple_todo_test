@@ -4,6 +4,7 @@ from django.contrib.auth import login
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db.models import Case, When, IntegerField
 import json
 from .models import TodoItem, Status, Category
 from .forms import TodoItemForm, UserRegisterForm, CategoryForm, StatusForm
@@ -36,16 +37,25 @@ def todo_list(request):
     if order == 'desc':
         sort_field = '-' + sort_field
 
-    # Query with sorting
-    todo_items = TodoItem.objects.all().order_by(sort_field)
+    # Sort tasks with "Completed" status at the bottom, then by the specified field
+    todo_items = TodoItem.objects.all().annotate(
+        # Annotate each item with a flag: 0 if not "Completed", 1 if "Completed"
+        completed_flag=Case(
+            When(status__name='Completed', then=1),
+            default=0,
+            output_field=IntegerField()
+        )
+    ).order_by('completed_flag', sort_field)
 
     context = {
         'todo_items': todo_items,
         'current_sort_by': sort_by,
         'current_order': order
     }
-    
+
     return render(request, 'todo/todo_list.html', context)
+
+
 
 @login_required
 def edit_todo(request, pk):
