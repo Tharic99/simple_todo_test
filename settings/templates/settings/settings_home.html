@@ -1,15 +1,66 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}{% endblock %}
+{% block title %}Settings Home{% endblock %}
 
 {% block content %}
-<h1>Simple To-Do List - Settings</h1>
+<div class="container mt-4">
 
-<hr>
+    <!-- User Information Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>User Information</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Full Name:</strong> {{ user.get_full_name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <!-- You can add more fields if needed -->
+        </div>
+    </div>
 
-<p>Use the links below to manage categories and statuses:</p>
-<ul>
-    <li><a href="{% url 'settings:manage_categories' %}">Manage Categories</a></li>
-    <li><a href="{% url 'settings:manage_statuses' %}">Manage Statuses</a></li>
-</ul>
+    <!-- General Settings Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>General Settings</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'settings:settings_home' %}">
+                {% csrf_token %}
+                
+                <!-- Dark/Light/Auto Mode Toggle -->
+                <div class="form-group">
+                    <label for="theme_mode">Theme Mode</label>
+                    <select class="form-control" id="theme_mode" name="theme_mode">
+                        <option value="auto" {% if current_theme_mode == 'auto' %}selected{% endif %}>Auto</option>
+                        <option value="light" {% if current_theme_mode == 'light' %}selected{% endif %}>Light</option>
+                        <option value="dark" {% if current_theme_mode == 'dark' %}selected{% endif %}>Dark</option>
+                    </select>
+                </div>
+                
+                <!-- Show Completed Items Toggle -->
+                <div class="form-group">
+                    <label for="show_completed">Show Completed Items</label>
+                    <select class="form-control" id="show_completed" name="show_completed">
+                        <option value="no" {% if show_completed == 'no' %}selected{% endif %}>No</option>
+                        <option value="yes" {% if show_completed == 'yes' %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Save General Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Configuration Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Configuration</h4>
+        </div>
+        <div class="card-body">
+            <a href="{% url 'settings:manage_categories' %}" class="btn btn-outline-secondary">Manage Categories</a>
+            <a href="{% url 'settings:manage_statuses' %}" class="btn btn-outline-secondary">Manage Statuses</a>
+        </div>
+    </div>
+
+</div>
 {% endblock %}

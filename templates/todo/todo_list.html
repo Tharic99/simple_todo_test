@@ -39,31 +39,33 @@
         </thead>
         <tbody>
             {% for todo in todo_items %}
-                <tr class="{% if todo.status and todo.status.name == 'Completed' %}completed{% endif %}">
-                    <td>
-                        <input type="checkbox" class="task-checkbox" data-id="{{ todo.id }}" {% if todo.status and todo.status.name == 'Completed' %}checked{% endif %}>
-                    </td>
-                    <td>
-                        {% if todo.category %}
-                            {{ todo.category.name }}
-                        {% else %}
-                            No Category
-                        {% endif %}
-                    </td>
-                    <td>{{ todo.title }}</td>
-                    <td>{{ todo.description }}</td>
-                    <td>{{ todo.due_date }}</td>
-                    <td>
-                        <a class="btn btn-primary btn-sm" href="{% url 'todo:edit_todo' todo.id %}">Edit</a>
-                    </td>
-                    <td>
-                        {% if todo.status %}
-                            {{ todo.status.name }}
-                        {% else %}
-                            Not Set
-                        {% endif %}
-                    </td>
-                </tr>
+                {% if show_completed == 'yes' or todo.status.name != 'Completed' %}
+                    <tr class="{% if todo.status and todo.status.name == 'Completed' %}completed{% endif %}">
+                        <td>
+                            <input type="checkbox" class="task-checkbox" data-id="{{ todo.id }}" {% if todo.status and todo.status.name == 'Completed' %}checked{% endif %}>
+                        </td>
+                        <td>
+                            {% if todo.category %}
+                                {{ todo.category.name }}
+                            {% else %}
+                                No Category
+                            {% endif %}
+                        </td>
+                        <td>{{ todo.title }}</td>
+                        <td>{{ todo.description }}</td>
+                        <td>{{ todo.due_date }}</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="{% url 'todo:edit_todo' todo.id %}">Edit</a>
+                        </td>
+                        <td>
+                            {% if todo.status %}
+                                {{ todo.status.name }}
+                            {% else %}
+                                Not Set
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>

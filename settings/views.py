@@ -1,17 +1,36 @@
-# settings/views.py
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from todo.models import Category, Status  # Import from the 'todo' app
+from todo.models import Category, Status
 from .forms import CategoryForm, StatusForm
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserProfile
 
 @login_required
 def settings_home(request):
-    """Default page for settings."""
-    return render(request, 'settings/settings_home.html')
+    """Default page for settings with user info and general settings."""
+    
+    if request.method == 'POST':
+        # Handle form submission for updating settings
+        theme_mode = request.POST.get('theme_mode', 'auto')
+        show_completed = request.POST.get('show_completed', 'no')
+
+        # Save user profile settings
+        user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+        user_profile.theme_preference = theme_mode
+        user_profile.show_completed = (show_completed == 'yes')
+        user_profile.save()
+
+        return redirect('settings:settings_home')
+
+    # Retrieve current user settings
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    current_theme_mode = user_profile.theme_preference or 'auto'
+    show_completed = 'yes' if user_profile.show_completed else 'no'
+
+    return render(request, 'settings/settings_home.html', {
+        'current_theme_mode': current_theme_mode,
+        'show_completed': show_completed,
+    })
 
 @login_required
 def manage_categories(request):
@@ -42,14 +61,13 @@ def manage_statuses(request):
             return redirect('settings:manage_statuses')
     else:
         form = StatusForm()
-    
+
     return render(request, 'settings/manage_statuses.html', {'statuses': statuses, 'form': form})
-
-
 
 @csrf_exempt
 @login_required
 def change_theme(request):
+    """Change the user's theme preference."""
     if request.method == 'POST':
         theme = request.POST.get('theme')
         if theme in ['light', 'dark', 'auto']:
