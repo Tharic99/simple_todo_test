@@ -55,8 +55,6 @@ def todo_list(request):
 
     return render(request, 'todo/todo_list.html', context)
 
-
-
 @login_required
 def edit_todo(request, pk):
     todo_item = get_object_or_404(TodoItem, pk=pk)
