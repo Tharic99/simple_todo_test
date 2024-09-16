@@ -2,6 +2,7 @@
 
 from django import forms
 from todo.models import Category, Status
+from .models import UserProfile
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -28,3 +29,8 @@ class StatusForm(forms.ModelForm):
             if Status.objects.filter(is_default=True).exists():
                 raise forms.ValidationError('There can only be one default status.')
         return is_default
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['theme_preference']

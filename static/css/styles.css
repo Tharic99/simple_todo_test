@@ -1,13 +1,20 @@
 /* Example of overriding Bootstrap styles */
+/*
 .navbar {
-    background-color: #007bff;
-}
+    background-color: #007bff; /* Dark blue background */
+/*}*/
 
+/*
 .navbar-brand {
-    color: #fff !important;
-}
+    color: #fff !important; /* White text color for visibility */
+/*}*/
 
-.completed {
-    text-decoration: line-through;
-    color: gray; /* Optional: Change text color for completed tasks */
-}
+/*
+.navbar-nav .nav-link {
+    color: #fff !important; /* White text color for nav links */
+/*}*/
+
+/*
+.dropdown-menu {
+    right: 0 !important; /* Align dropdown menu to the right */
+/*}*/

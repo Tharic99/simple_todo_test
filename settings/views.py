@@ -4,6 +4,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from todo.models import Category, Status  # Import from the 'todo' app
 from .forms import CategoryForm, StatusForm
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import UserProfile
 
 @login_required
 def settings_home(request):
@@ -41,3 +44,16 @@ def manage_statuses(request):
         form = StatusForm()
     
     return render(request, 'settings/manage_statuses.html', {'statuses': statuses, 'form': form})
+
+
+
+@csrf_exempt
+@login_required
+def change_theme(request):
+    if request.method == 'POST':
+        theme = request.POST.get('theme')
+        if theme in ['light', 'dark', 'auto']:
+            user_profile = UserProfile.objects.get(user=request.user)
+            user_profile.theme_preference = theme
+            user_profile.save()
+    return redirect('settings:settings_home')

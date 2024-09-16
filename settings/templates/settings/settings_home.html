@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Settings{% endblock %}
+{% block title %}{% endblock %}
 
 {% block content %}
-<h1>Settings</h1>
+<h1>Simple To-Do List - Settings</h1>
+
+<hr>
+
 <p>Use the links below to manage categories and statuses:</p>
 <ul>
     <li><a href="{% url 'settings:manage_categories' %}">Manage Categories</a></li>

@@ -1,52 +1,64 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="{% if user.is_authenticated %}{{ user.userprofile.theme_preference }}{% else %}auto{% endif %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Simple To-Do List{% endblock %}</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <script>
         window.urls = {
-            updateTaskStatus: "{% url 'todo:update_task_status' %}"
+            updateTaskStatus: "{% url 'todo:update_task_status' %}",
+            changeThemePreference: "{% url 'settings:change_theme' %}"
         };
         window.csrfToken = "{{ csrf_token }}";
     </script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'todo:todo_list' %}">Simple ToDo</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'todo:todo_list' %}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'todo:add_todo' %}">Add Todo</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'settings:settings_home' %}">Settings</a>
-                </li>
-            </ul>
-            <!-- Right-aligned section -->
-            <ul class="navbar-nav ml-auto">
-                {% if user.is_authenticated %}
+        <div class="container-fluid">
+            <a class="navbar-brand me-auto" href="{% url 'todo:todo_list' %}">Simple To-Do List</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        <a class="nav-link" href="{% url 'todo:add_todo' %}">Add Todo</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold text-danger" href="{% url 'admin:index' %}">Admin</a>
+                        <a class="nav-link" href="{% url 'settings:settings_home' %}">Settings</a>
                     </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Login</a>
-                    </li>
-                {% endif %}
-            </ul>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item theme-switch" href="#" data-theme="light">Light Mode</a></li>
+                                <li><a class="dropdown-item theme-switch" href="#" data-theme="dark">Dark Mode</a></li>
+                                <li><a class="dropdown-item theme-switch" href="#" data-theme="auto">Auto Mode</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -66,8 +78,59 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <!-- Popper.js and Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <!-- Your Custom JS -->
     <script src="{% static 'js/custom.js' %}"></script>
+
+    <script>
+        // Function to change theme preference
+        function changeTheme(theme) {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            // Update user preference via AJAX call
+            fetch(window.urls.changeThemePreference, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.csrfToken
+                },
+                body: JSON.stringify({ theme_preference: theme })
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Theme preference updated.");
+                } else {
+                    console.error("Failed to update theme preference.");
+                }
+            });
+        }
+
+        // Function to switch the theme
+        function switchTheme(theme) {
+            if (theme === 'auto') {
+                // Auto mode - check system preference
+                const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                theme = prefersDarkScheme ? 'dark' : 'light';
+            }
+
+            // Apply the theme
+            document.documentElement.setAttribute('data-bs-theme', theme);
+
+            // Store the selected theme in localStorage
+            localStorage.setItem('theme', theme);
+        }
+
+        // On page load, check for a stored theme and apply it
+        document.addEventListener("DOMContentLoaded", function() {
+            let storedTheme = localStorage.getItem('theme') || "{{ request.user.userprofile.theme_preference }}" || 'auto';
+            switchTheme(storedTheme);
+
+            // Attach event listeners for theme switch links
+            document.querySelectorAll('.theme-switch').forEach(function(element) {
+                element.addEventListener('click', function() {
+                    const selectedTheme = this.getAttribute('data-theme');
+                    switchTheme(selectedTheme);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
