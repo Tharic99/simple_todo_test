@@ -1,4 +1,12 @@
 /* Example of overriding Bootstrap styles */
+
+
+.completed td {
+    text-decoration: line-through;
+    color: gray;
+}
+
+
 /*
 .navbar {
     background-color: #007bff; /* Dark blue background */
