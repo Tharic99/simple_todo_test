@@ -5,21 +5,43 @@
 {% block content %}
 <div class="container mt-4">
     <h2>To-Do's by Categories</h2>
-    <div class="list-group">
-        {% for category, todos in todos_by_category.items %}
-            <div class="list-group-item">
-                <h5>{{ category.name }}</h5>
-                <ul>
-                    {% for todo in todos %}
-                        <li>{{ todo.title }} - {% if todo.is_completed %}Completed{% else %}Not Completed{% endif %}</li>
-                    {% empty %}
-                        <li>No to-do items in this category.</li>
-                    {% endfor %}
-                </ul>
+
+    {% for category, todos in todos_by_category.items %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>{{ category.name }} ({{ todos|length }} items)</h4>
             </div>
-        {% empty %}
-            <p>No categories available.</p>
-        {% endfor %}
-    </div>
+            <div class="card-body">
+                {% if todos %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Completed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for todo in todos %}
+                                <tr>
+                                    <td>{{ todo.title }}</td>
+                                    <td>{{ todo.description }}</td>
+                                    <td>{{ todo.due_date }}</td>
+                                    <td>{{ todo.status }}</td>
+                                    <td>{% if todo.is_completed %}Yes{% else %}No{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No to-do items in this category.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <p>No categories available.</p>
+    {% endfor %}
 </div>
 {% endblock %}

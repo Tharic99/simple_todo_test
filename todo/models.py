@@ -46,7 +46,12 @@ class TodoItem(models.Model):
     status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True, blank=True, default=None, related_name='todos')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, default=None, related_name='todos')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    is_completed = models.BooleanField(default=False)  # Add this line
+    is_completed = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        # Automatically set `is_completed` based on `status`
+        self.is_completed = bool(self.status and self.status.name == 'Completed')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

@@ -41,7 +41,7 @@
             {% for todo in todo_items %}
                 {% if show_completed == 'yes' or todo.status.name != 'Completed' %}
                     <tr class="{% if todo.status and todo.status.name == 'Completed' %}completed{% endif %}">
-                        <td>
+                        <td style="text-align: center;">
                             <input type="checkbox" class="task-checkbox" data-id="{{ todo.id }}" {% if todo.status and todo.status.name == 'Completed' %}checked{% endif %}>
                         </td>
                         <td>
@@ -53,7 +53,21 @@
                         </td>
                         <td>{{ todo.title }}</td>
                         <td>{{ todo.description }}</td>
-                        <td>{{ todo.due_date }}</td>
+                        <td>
+                            {% if todo.is_completed %}
+                                {% if todo.due_date and todo.due_date < today %}
+                                    <span style="text-decoration: line-through;">{{ todo.due_date }}</span>
+                                {% else %}
+                                    <span style="text-decoration: line-through;">{{ todo.due_date }}</span>
+                                {% endif %}
+                            {% else %}
+                                {% if todo.due_date and todo.due_date < today %}
+                                    <span style="color: red; font-weight: bold;">{{ todo.due_date }}</span>
+                                {% else %}
+                                    {{ todo.due_date }}
+                                {% endif %}
+                            {% endif %}
+                        </td>
                         <td>
                             <a class="btn btn-primary btn-sm" href="{% url 'todo:edit_todo' todo.id %}">Edit</a>
                         </td>

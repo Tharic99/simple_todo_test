@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.http import JsonResponse
 from django.db.models import Case, When, IntegerField
+from django.utils import timezone
 import json
 from .models import TodoItem, Status, Category
 from settings.models import UserProfile  # Ensure this import is correct
@@ -11,7 +12,6 @@ from .forms import TodoItemForm, UserRegisterForm, CategoryForm, StatusForm
 
 @login_required
 def todo_list(request):
-    # Default sorting fields
     default_sort_by = 'status__name'
     default_order = 'asc'
 
@@ -19,7 +19,6 @@ def todo_list(request):
     sort_by = request.GET.get('sort_by', default_sort_by)
     order = request.GET.get('order', default_order)
 
-    # Map sort_by to correct field names
     sort_field = {
         'category__name': 'category__name',
         'description': 'description',
@@ -40,7 +39,6 @@ def todo_list(request):
         )
     ).order_by('completed_flag', sort_field)
 
-    # Retrieve user profile settings
     user_profile = get_object_or_404(UserProfile, user=request.user)
     show_completed = 'yes' if user_profile.show_completed else 'no'
 
@@ -48,7 +46,8 @@ def todo_list(request):
         'todo_items': todo_items,
         'current_sort_by': sort_by,
         'current_order': order,
-        'show_completed': show_completed  # Pass show_completed to the template
+        'show_completed': show_completed,
+        'today': timezone.now().date()  # Pass the current date to the template
     }
 
     return render(request, 'todo/todo_list.html', context)
@@ -71,6 +70,7 @@ def edit_todo(request, pk):
     
     return render(request, 'todo/edit_todo.html', {'form': form, 'todo_item': todo_item})
 
+
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -82,6 +82,7 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'todo/register.html', {'form': form})
 
+
 @login_required
 def add_todo(request):
     if request.method == 'POST':
@@ -90,14 +91,21 @@ def add_todo(request):
             todo_item = form.save(commit=False)
             todo_item.user = request.user  # Set the user field
             todo_item.save()
+
+            # Handle the "Save and Add Another" button
+            if 'add_another' in request.POST:
+                return redirect('todo:add_todo')
             return redirect('todo:todo_list')
     else:
         form = TodoItemForm()
+
         # Check for a default category and set it as initial value
         with contextlib.suppress(Category.DoesNotExist):
             default_category = Category.objects.get(is_default=True)
             form.fields['category'].initial = default_category
+
     return render(request, 'todo/add_todo.html', {'form': form})
+
 
 @login_required
 def confirm_delete(request, pk):
@@ -106,6 +114,7 @@ def confirm_delete(request, pk):
         todo_item.delete()
         return redirect('todo:todo_list')  # Redirect to the list view after deletion
     return render(request, 'todo/confirm_delete.html', {'todo_item': todo_item})
+
 
 @login_required
 def update_task_status(request):
@@ -125,6 +134,7 @@ def update_task_status(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
+
 @login_required
 def add_or_edit_category(request, pk=None):
     """Handle adding or editing categories, enforcing a single default."""
@@ -134,7 +144,6 @@ def add_or_edit_category(request, pk=None):
         if form.is_valid():
             # Check if this category is being set as default
             if form.cleaned_data.get('is_default'):
-                # Unset the current default category
                 Category.objects.filter(is_default=True).update(is_default=False)
             form.save()
             return redirect('todo:category_list')
@@ -143,20 +152,21 @@ def add_or_edit_category(request, pk=None):
 
     return render(request, 'todo/category_form.html', {'form': form})
 
+
 @login_required
 def add_or_edit_status(request, pk=None):
     """Handle adding or editing statuses, enforcing a single default."""
+    status = get_object_or_404(Status, pk=pk) if pk else None
     if request.method == 'POST':
-        form = StatusForm(request.POST, instance=get_object_or_404(Status, pk=pk) if pk else None)
+        form = StatusForm(request.POST, instance=status)
         if form.is_valid():
             # Check if this status is being set as default
             if form.cleaned_data.get('is_default'):
-                # Unset the current default status
                 Status.objects.filter(is_default=True).update(is_default=False)
             form.save()
             return redirect('todo:status_list')
     else:
-        form = StatusForm(instance=get_object_or_404(Status, pk=pk) if pk else None)
+        form = StatusForm(instance=status)
 
     return render(request, 'todo/status_form.html', {'form': form})
 
@@ -168,20 +178,17 @@ def todo_by_categories(request):
     todos_by_category = {category: category.todos.all() for category in categories}
     return render(request, 'todo/todo_by_categories.html', {'todos_by_category': todos_by_category})
 
+
 @login_required
 def todo_by_status(request):
-    """Display to-do items grouped by status with an option to display completed items."""
-    show_completed = request.GET.get('show_completed', 'no') == 'yes'
+    """Display to-do items grouped by status with completed items always included."""
     statuses = Status.objects.all()
-    
     todos_by_status = {}
+
     for status in statuses:
-        todos = status.todos.all()
-        if not show_completed:
-            todos = todos.exclude(is_completed=True)
+        todos = status.todos.all()  # Include all todos, regardless of their completion status
         todos_by_status[status] = todos
 
     return render(request, 'todo/todo_by_status.html', {
         'todos_by_status': todos_by_status,
-        'show_completed': show_completed
     })

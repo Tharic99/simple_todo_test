@@ -5,27 +5,41 @@
 {% block content %}
 <div class="container mt-4">
     <h2>To-Do's by Status</h2>
-    <form method="get" action="{% url 'todo:todo_by_status' %}" class="mb-3">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="show_completed" name="show_completed" value="yes" {% if show_completed %}checked{% endif %}>
-            <label class="form-check-label" for="show_completed">
-                Display Completed Items
-            </label>
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Apply</button>
-    </form>
 
     {% for status, todos in todos_by_status.items %}
-        <h3>{{ status.name }}</h3>
-        <ul class="list-group">
-            {% for todo in todos %}
-                <li class="list-group-item">
-                    {{ todo.title }}{% if todo.is_completed %} - Completed{% else %} - Not Completed{% endif %}
-                </li>
-            {% empty %}
-                <li class="list-group-item">No tasks found.</li>
-            {% endfor %}
-        </ul>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>{{ status.name }} ({{ todos|length }} items)</h4>
+            </div>
+            <div class="card-body">
+                {% if todos %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Due Date</th>
+                                <th>Category</th>
+                                <th>Completed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for todo in todos %}
+                                <tr>
+                                    <td>{{ todo.title }}</td>
+                                    <td>{{ todo.description }}</td>
+                                    <td>{{ todo.due_date }}</td>
+                                    <td>{{ todo.category.name }}</td>
+                                    <td>{% if todo.is_completed %}Yes{% else %}No{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No to-do items with this status.</p>
+                {% endif %}
+            </div>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}

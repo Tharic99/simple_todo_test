@@ -35,3 +35,18 @@
     margin-top: 56px; /* Space for the navbar */
     padding: 15px; /* Padding for content */
 }
+
+
+/* Center the checkbox in the table cell */
+.text-center {
+    text-align: center;
+}
+
+/* Style for overdue due dates */
+.text-danger {
+    color: red;
+}
+
+.font-weight-bold {
+    font-weight: bold;
+}

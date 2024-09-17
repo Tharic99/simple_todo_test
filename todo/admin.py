@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import TodoItem, Category, Status, Version
 
 class TodoItemAdmin(admin.ModelAdmin):
-    list_display = ('title', 'due_date', 'status', 'create_date', 'category', 'user')  # Fields to display in list view
+    list_display = ('title', 'due_date', 'status', 'is_completed', 'create_date', 'category', 'user')  # Fields to display in list view
     list_filter = ('status', 'category', 'user')  # Fields to filter by in the admin list view
     search_fields = ('title', 'description')  # Fields to search by
     readonly_fields = ('create_date',)  # Fields that should be read-only
