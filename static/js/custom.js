@@ -13,13 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const taskId = checkbox.getAttribute('data-id');
             const newStatus = checkbox.checked ? 'Completed' : 'Pending';
             
-            // Display a confirmation dialog
+/*             // Display a confirmation dialog
             const confirmation = confirm(`Are you sure you want to mark this task as ${newStatus}?`);
             if (!confirmation) {
                 // If user clicks "Cancel", revert the checkbox state
                 checkbox.checked = !checkbox.checked;
                 return;
-            }
+            } */
             
             fetch(window.urls.updateTaskStatus, {
                 method: 'POST',
