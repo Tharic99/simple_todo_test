@@ -39,18 +39,24 @@ def todo_list(request):
         )
     ).order_by('completed_flag', sort_field)
 
+    # Get the current user's profile
     user_profile = get_object_or_404(UserProfile, user=request.user)
+    
+    # Retrieve the 'show_completed' and 'enable_confirmations' values from the user's profile
     show_completed = 'yes' if user_profile.show_completed else 'no'
+    enable_confirmations = user_profile.enable_confirmations  # This was missing before
 
     context = {
         'todo_items': todo_items,
         'current_sort_by': sort_by,
         'current_order': order,
         'show_completed': show_completed,
+        'enable_confirmations': enable_confirmations,  # Pass the 'enable_confirmations' setting to the template
         'today': timezone.now().date()  # Pass the current date to the template
     }
 
     return render(request, 'todo/todo_list.html', context)
+
 
 
 @login_required

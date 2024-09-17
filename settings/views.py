@@ -13,11 +13,13 @@ def settings_home(request):
         # Handle form submission for updating settings
         theme_mode = request.POST.get('theme_mode', 'auto')
         show_completed = request.POST.get('show_completed', 'no')
+        enable_confirmations = request.POST.get('enable_confirmations', 'no')
 
         # Save user profile settings
         user_profile, created = UserProfile.objects.get_or_create(user=request.user)
         user_profile.theme_preference = theme_mode
         user_profile.show_completed = (show_completed == 'yes')
+        user_profile.enable_confirmations = (enable_confirmations == 'yes')
         user_profile.save()
 
         return redirect('settings:settings_home')
@@ -26,11 +28,14 @@ def settings_home(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
     current_theme_mode = user_profile.theme_preference or 'auto'
     show_completed = 'yes' if user_profile.show_completed else 'no'
+    enable_confirmations = 'yes' if user_profile.enable_confirmations else 'no'
 
     return render(request, 'settings/settings_home.html', {
         'current_theme_mode': current_theme_mode,
         'show_completed': show_completed,
+        'enable_confirmations': enable_confirmations,
     })
+
 
 @login_required
 def manage_categories(request):

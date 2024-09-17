@@ -126,7 +126,10 @@
         <div class="container">
             <p class="text-center">Simple To-Do List - Version: {{ latest_version.version_number }} (Released on {{ latest_version.release_date }})</p>
             {% if user.is_authenticated %}
-                <p class="text-center">Current Theme Preference: {{ user.userprofile.theme_preference }}</p>
+                <p class="text-center">Current Theme Preference: {{ user.userprofile.theme_preference }} | 
+                Display Completed: {{ user.userprofile.show_completed }} |
+                Display Confirmations: {{ user.userprofile.enable_confirmations}}
+            </p>
             {% endif %}
         </div>
     </footer>

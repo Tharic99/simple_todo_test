@@ -3,7 +3,6 @@
 {% block title %}Simple To-Do List{% endblock %}
 
 {% block content %}
-
     <h2 class="mt-4 mb-4">Simple To-Do List</h2>
     <table class="table table-striped">
         <thead class="thead-dark">
@@ -42,7 +41,8 @@
                 {% if show_completed == 'yes' or todo.status.name != 'Completed' %}
                     <tr class="{% if todo.status and todo.status.name == 'Completed' %}completed{% endif %}">
                         <td style="text-align: center;">
-                            <input type="checkbox" class="task-checkbox" data-id="{{ todo.id }}" {% if todo.status and todo.status.name == 'Completed' %}checked{% endif %}>
+                            <input type="checkbox" class="task-checkbox" data-id="{{ todo.id }}"
+                                   {% if todo.status and todo.status.name == 'Completed' %}checked aria-checked="true"{% else %}aria-checked="false"{% endif %}>
                         </td>
                         <td>
                             {% if todo.category %}
@@ -84,4 +84,49 @@
         </tbody>
     </table>
     <a class="btn btn-success mt-4" href="{% url 'todo:add_todo' %}">Add New Todo</a>
+
+    <!-- Confirmation logic -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get the enableConfirmations value from the server-side context
+            const enableConfirmations = {{ enable_confirmations|yesno:"true,false" }};
+
+            // Handle checkbox change event
+            document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    if (enableConfirmations) {
+                        if (confirm('Are you sure you want to update this task?')) {
+                            updateTaskStatus(checkbox);
+                        } else {
+                            checkbox.checked = !checkbox.checked;  // Revert the checkbox if confirmation was denied
+                        }
+                    } else {
+                        updateTaskStatus(checkbox);
+                    }
+                });
+            });
+
+            function updateTaskStatus(checkbox) {
+                const taskId = checkbox.getAttribute('data-id');
+                const isChecked = checkbox.checked ? 'Completed' : 'Not Completed';
+                fetch("{% url 'todo:update_task_status' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ id: taskId, status: isChecked })
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.status === 'success') {
+                          console.log('Task status updated successfully');
+                      } else {
+                          console.log('Failed to update task status');
+                      }
+                  }).catch(error => {
+                      console.error('Error:', error);
+                  });
+            }
+        });
+    </script>
 {% endblock %}
