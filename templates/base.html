@@ -1,12 +1,16 @@
 {% load static %}
+
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="{% if user.is_authenticated %}{{ user.userprofile.theme_preference }}{% else %}auto{% endif %}">
+<html lang="en" data-bs-theme="{% if user.is_authenticated and user.userprofile.theme_preference == 'dark' %}dark{% else %}light{% endif %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Simple To-Do List{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+
+    <!-- Dynamically load the correct theme CSS file -->
+    <link id="theme-css" rel="stylesheet" href="{% if user.is_authenticated and user.userprofile.theme_preference == 'dark' %}{% static 'css/darkly.css' %}{% else %}{% static 'css/flatly.css' %}{% endif %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
     <script>
         window.urls = {
             updateTaskStatus: "{% url 'todo:update_task_status' %}",
@@ -14,9 +18,51 @@
         };
         window.csrfToken = "{{ csrf_token }}";
     </script>
+    <style>
+        .sidebar {
+            width: 250px; /* Adjust width as needed */
+            position: fixed; /* Make the sidebar fixed */
+            top: 56px; /* Adjust based on the height of your navbar */
+            left: 0;
+            height: calc(100vh - 56px); /* Full height minus the height of the navbar */
+            padding: 15px; /* Padding inside the sidebar */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
+            z-index: 1; /* Ensure the sidebar is below the navbar */
+        }
+
+        /* Default light theme styles */
+        [data-bs-theme="light"] .sidebar {
+            background-color: #f8f9fa; /* Light background for the sidebar */
+            color: #000; /* Dark text */
+        }
+
+        /* Dark theme styles */
+        [data-bs-theme="dark"] .sidebar {
+            background-color: #343a40; /* Dark background for the sidebar */
+            color: #fff; /* Light text */
+        }
+
+        .sidebar a {
+            color: inherit; /* Inherit text color */
+        }
+
+        .content {
+            margin-left: 250px; /* Match the width of the sidebar */
+            margin-top: 56px; /* Space for the navbar */
+            padding: 15px; /* Padding for content */
+        }
+
+        .navbar {
+            position: fixed; /* Fix the navbar to the top */
+            top: 0; /* Align to the top */
+            left: 0; /* Align to the left */
+            width: 100%; /* Full width */
+            z-index: 2; /* Ensure the navbar is above the sidebar */
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg {% if user.is_authenticated and user.userprofile.theme_preference == 'dark' %}navbar-dark bg-dark{% else %}navbar-light bg-light{% endif %}">
         <div class="container-fluid">
             <a class="navbar-brand me-auto" href="{% url 'todo:todo_list' %}">Simple To-Do List</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,24 +76,18 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'settings:settings_home' %}">Settings</a>
                     </li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
-                        </li>
-                    {% endif %}
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin:index' %}" style="font-weight: bold; color: red;">Admin</a>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item theme-switch" href="#" data-theme="light">Light Mode</a></li>
-                                <li><a class="dropdown-item theme-switch" href="#" data-theme="dark">Dark Mode</a></li>
-                                <li><a class="dropdown-item theme-switch" href="#" data-theme="auto">Auto Mode</a></li>
-                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
@@ -62,7 +102,21 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="sidebar">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'todo:todo_list' %}">To-Do's</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'todo:todo_by_categories' %}">Categories</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'todo:todo_by_status' %}">Statuses</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="content">
         {% block content %}
         <!-- Page content will go here -->
         {% endblock %}
@@ -71,6 +125,9 @@
     <footer class="mt-4">
         <div class="container">
             <p class="text-center">Simple To-Do List - Version: {{ latest_version.version_number }} (Released on {{ latest_version.release_date }})</p>
+            {% if user.is_authenticated %}
+                <p class="text-center">Current Theme Preference: {{ user.userprofile.theme_preference }}</p>
+            {% endif %}
         </div>
     </footer>
 
@@ -83,30 +140,9 @@
     <script src="{% static 'js/custom.js' %}"></script>
 
     <script>
-        // Function to change theme preference
-        function changeTheme(theme) {
-            document.documentElement.setAttribute('data-bs-theme', theme);
-            // Update user preference via AJAX call
-            fetch(window.urls.changeThemePreference, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': window.csrfToken
-                },
-                body: JSON.stringify({ theme_preference: theme })
-            }).then(response => {
-                if (response.ok) {
-                    console.log("Theme preference updated.");
-                } else {
-                    console.error("Failed to update theme preference.");
-                }
-            });
-        }
-
         // Function to switch the theme
         function switchTheme(theme) {
             if (theme === 'auto') {
-                // Auto mode - check system preference
                 const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
                 theme = prefersDarkScheme ? 'dark' : 'light';
             }
@@ -114,22 +150,18 @@
             // Apply the theme
             document.documentElement.setAttribute('data-bs-theme', theme);
 
+            // Load the corresponding CSS file
+            const themeCss = document.getElementById('theme-css');
+            themeCss.href = theme === 'dark' ? "{% static 'css/darkly.css' %}" : "{% static 'css/flatly.css' %}";
+
             // Store the selected theme in localStorage
             localStorage.setItem('theme', theme);
         }
 
         // On page load, check for a stored theme and apply it
         document.addEventListener("DOMContentLoaded", function() {
-            let storedTheme = localStorage.getItem('theme') || "{{ request.user.userprofile.theme_preference }}" || 'auto';
+            let storedTheme = localStorage.getItem('theme') || "{{ user.userprofile.theme_preference }}" || 'auto';
             switchTheme(storedTheme);
-
-            // Attach event listeners for theme switch links
-            document.querySelectorAll('.theme-switch').forEach(function(element) {
-                element.addEventListener('click', function() {
-                    const selectedTheme = this.getAttribute('data-theme');
-                    switchTheme(selectedTheme);
-                });
-            });
         });
     </script>
 </body>

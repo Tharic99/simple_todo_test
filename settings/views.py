@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from todo.models import Category, Status
 from .forms import CategoryForm, StatusForm
-from django.views.decorators.csrf import csrf_exempt
 from .models import UserProfile
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def settings_home(request):
@@ -56,7 +56,7 @@ def manage_statuses(request):
         form = StatusForm(request.POST)
         if form.is_valid():
             if form.cleaned_data.get('is_default'):
-                Status.objects.filter(is_default=True).update(is_default=False)
+                Status.objects.filter(is_default=True).update(is_default(False))
             form.save()
             return redirect('settings:manage_statuses')
     else:

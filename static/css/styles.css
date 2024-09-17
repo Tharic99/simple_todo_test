@@ -1,28 +1,37 @@
 /* Example of overriding Bootstrap styles */
 
-
+/* Style for the completed tasks */
 .completed td {
     text-decoration: line-through;
     color: gray;
 }
 
+/* Sidebar styles */
+.sidebar {
+    background-color: #f8f9fa; /* Light background color for the sidebar */
+    padding: 15px; /* Add some padding */
+    border-right: 1px solid #ddd; /* Optional: add a border to separate the sidebar from content */
+    position: fixed; /* Fix the sidebar to the left side */
+    top: 56px; /* Adjust based on the height of your navbar */
+    left: 0; /* Align to the left */
+    width: 250px; /* Adjust width as needed */
+    height: calc(100vh - 56px); /* Full height minus the height of the navbar */
+    z-index: 1; /* Ensure the sidebar is below the navbar */
+}
 
-/*
+/* Top Navbar styles */
 .navbar {
     background-color: #007bff; /* Dark blue background */
-/*}*/
+    position: fixed; /* Fix the navbar to the top */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    width: 100%; /* Full width */
+    z-index: 2; /* Ensure the navbar is above the sidebar */
+}
 
-/*
-.navbar-brand {
-    color: #fff !important; /* White text color for visibility */
-/*}*/
-
-/*
-.navbar-nav .nav-link {
-    color: #fff !important; /* White text color for nav links */
-/*}*/
-
-/*
-.dropdown-menu {
-    right: 0 !important; /* Align dropdown menu to the right */
-/*}*/
+/* Ensure content adjusts to the navbar and sidebar */
+.content {
+    margin-left: 250px; /* Space for the sidebar */
+    margin-top: 56px; /* Space for the navbar */
+    padding: 15px; /* Padding for content */
+}

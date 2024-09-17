@@ -63,4 +63,32 @@
     </div>
 
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Theme mode change handler
+        document.getElementById('theme_mode').addEventListener('change', function() {
+            const selectedTheme = this.value;
+            
+            fetch("{% url 'settings:change_theme' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ theme_preference: selectedTheme })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log("Theme preference updated.");
+                    location.reload();  // Reload page to apply the new theme
+                } else {
+                    console.error("Failed to update theme preference.");
+                }
+            });
+        });
+    });
+</script>
+
 {% endblock %}

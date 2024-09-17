@@ -18,7 +18,7 @@ class Status(models.Model):
     class Meta:
         ordering = ['-name']
         verbose_name = "Status"
-        verbose_name_plural = "Statuses"          
+        verbose_name_plural = "Statuses"
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -36,16 +36,17 @@ class Category(models.Model):
     class Meta:
         ordering = ['-name']
         verbose_name = "Category"
-        verbose_name_plural = "Catagories"        
+        verbose_name_plural = "Categories"
 
 class TodoItem(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     due_date = models.DateField(null=True, blank=True)  # Allow NULL values
     create_date = models.DateTimeField(default=timezone.now)
-    status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True, blank=True, default=None, related_name='todos')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, default=None, related_name='todos')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_completed = models.BooleanField(default=False)  # Add this line
 
     def __str__(self):
         return self.title

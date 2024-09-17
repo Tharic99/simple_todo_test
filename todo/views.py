@@ -159,3 +159,29 @@ def add_or_edit_status(request, pk=None):
         form = StatusForm(instance=get_object_or_404(Status, pk=pk) if pk else None)
 
     return render(request, 'todo/status_form.html', {'form': form})
+
+
+@login_required
+def todo_by_categories(request):
+    """Display to-do items grouped by categories."""
+    categories = Category.objects.all()
+    todos_by_category = {category: category.todos.all() for category in categories}
+    return render(request, 'todo/todo_by_categories.html', {'todos_by_category': todos_by_category})
+
+@login_required
+def todo_by_status(request):
+    """Display to-do items grouped by status with an option to display completed items."""
+    show_completed = request.GET.get('show_completed', 'no') == 'yes'
+    statuses = Status.objects.all()
+    
+    todos_by_status = {}
+    for status in statuses:
+        todos = status.todos.all()
+        if not show_completed:
+            todos = todos.exclude(is_completed=True)
+        todos_by_status[status] = todos
+
+    return render(request, 'todo/todo_by_status.html', {
+        'todos_by_status': todos_by_status,
+        'show_completed': show_completed
+    })

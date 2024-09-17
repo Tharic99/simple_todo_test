@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}To-Do's by Categories{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>To-Do's by Categories</h2>
+    <div class="list-group">
+        {% for category, todos in todos_by_category.items %}
+            <div class="list-group-item">
+                <h5>{{ category.name }}</h5>
+                <ul>
+                    {% for todo in todos %}
+                        <li>{{ todo.title }} - {% if todo.is_completed %}Completed{% else %}Not Completed{% endif %}</li>
+                    {% empty %}
+                        <li>No to-do items in this category.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% empty %}
+            <p>No categories available.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
