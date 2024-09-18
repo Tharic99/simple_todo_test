@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Simple To-Do List{% endblock %}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
     <!-- Dynamically load the correct theme CSS file -->
     <link id="theme-css" rel="stylesheet" href="{% if user.is_authenticated and user.userprofile.theme_preference == 'dark' %}{% static 'css/darkly.css' %}{% else %}{% static 'css/flatly.css' %}{% endif %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">

@@ -1,0 +1,83 @@
+{% extends 'registration/base.html' %}
+
+{% load static %} 
+
+{% block title %}Register - Simple To-Do{% endblock %}
+
+{% block content %}
+    <div class="register-container">
+        <!-- Simple To-Do Logo -->
+        <div class="logo" style="background-color: black; padding: 10px; border-radius: 5px;">
+            <img src="{% static 'logo.png' %}" alt="Simple To-Do Logo" style="max-width: 75%; height: auto; display: block; margin: 0 auto;">
+        </div>
+
+        <h2>Register</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.non_field_errors }}
+                {{ form.username.label_tag }} {{ form.username }}
+                {{ form.username.errors }}
+                {{ form.password1.label_tag }} {{ form.password1 }}
+                {{ form.password1.errors }}
+                {{ form.password2.label_tag }} {{ form.password2 }}
+                {{ form.password2.errors }}
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit">Register</button>
+                <!-- Cancel button to go back to the login page -->
+                <a href="{% url 'login' %}">
+                    <button type="button" class="new-user-btn">Cancel</button>
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_styles %}
+    <style>
+        .register-container {
+            background-color: #000; /* Black background */
+            color: #fff; /* White text */
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            color: #fff; /* White label text */
+        }
+
+        .form-group input {
+            background-color: #333; /* Dark background for inputs */
+            color: #fff; /* White text in inputs */
+            border: 1px solid #444; /* Slightly lighter border */
+            border-radius: 5px;
+            padding: 10px;
+            width: 100%;
+        }
+
+        .form-group input:focus {
+            border-color: #666; /* Lighter border on focus */
+            outline: none;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .new-user-btn {
+            background-color: #555; /* Dark background for button */
+            color: #fff; /* White text for button */
+        }
+
+        .new-user-btn:hover {
+            background-color: #666; /* Slightly lighter background on hover */
+        }
+    </style>
+{% endblock %}

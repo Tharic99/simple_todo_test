@@ -1,14 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Log in</button>
-    </form>
-</body>
-</html>
+{% extends 'registration/base.html' %}
+
+{% load static %} 
+
+{% block title %}Login - Simple To-Do{% endblock %}
+
+{% block content %}
+    <div class="login-container">
+        <!-- Simple To-Do Logo -->
+        <div class="logo" style="background-color: black; padding: 10px; border-radius: 5px;">
+            <img src="{% static 'logo.png' %}" alt="Simple To-Do Logo" style="max-width: 75%; height: auto; display: block; margin: 0 auto;">
+        </div>
+
+        <h2>Login</h2>
+        <form method="post">
+            <div class="form-group">
+            {% csrf_token %}
+            {{ form.as_p }}
+            </div>
+
+            <div class="form-buttons">
+
+                <button type="submit">Log in</button>
+                <a href="{% url 'register' %}">
+                    <button type="button" class="new-user-btn">New User</button>
+                </a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

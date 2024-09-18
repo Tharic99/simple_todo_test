@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'todo',         # Simple To-Do itself
     'settings',     # Settings/Config
+    'registration', # User Registration/login/logout
 ]
 
 MIDDLEWARE = [
